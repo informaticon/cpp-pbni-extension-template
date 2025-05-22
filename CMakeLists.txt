@@ -1,23 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
 
-
-##################################################
-#                    Options                     #
-##################################################
-
 set(OUTPUT_PATH "${CMAKE_SOURCE_DIR}/out" CACHE PATH "Location of built dlls/libraries")
 set(INSTALL_PATH "${CMAKE_SOURCE_DIR}/pbproj" CACHE PATH "Location where the resulting DLL shall be placed in")
+set(PBNI_SDK_DIRECTORY "C:/Program Files (x86)/Appeon/PowerBuilder 22.0/SDK/PBNI" CACHE PATH "Location of the required PBNI Sources")
 set(VERSION_STR "0.0.0-trunk" CACHE STRING "Version number to add to the DLL")
-set(COMPANY_NAME "" CACHE STRING "")
+set(COMPANY_NAME "Informaticon AG" CACHE STRING "")
 
-##################################################
-#               °°°PACKAGE_NAME°°°               #
-##################################################
 
 project(°°°PACKAGE_NAME°°° LANGUAGES CXX)
 
 add_library(${PROJECT_NAME} SHARED
-	°°°SOURCE_NAME°°°
+	°°°SOURCE_FILES°°°
 )
 
 set_target_properties(${PROJECT_NAME}
@@ -26,9 +19,6 @@ PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_PATH}
 	ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_PATH}
 	LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_PATH}
- 	# Because vcpkg x86-windows-static sets this in dependencies, but not the main project
- 	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
-
 )
 
 string(TIMESTAMP BUILD_NR "%Y,%m,%d,%H%M")
@@ -41,17 +31,15 @@ PUBLIC
 )
 target_sources(${PROJECT_NAME} PRIVATE res/version.rc)
 
-# Warning doesn't affect us, since we use a fixed Boost version
-set(Boost_NO_WARN_NEW_VERSIONS "1")
+find_package(lib.cpp.base.pbni-framework REQUIRED)
 
-
-find_package(pbni-framework CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME}
 PRIVATE
-	inf::pbni-framework
+	lib.cpp.base.pbni-framework::lib.cpp.base.pbni-framework
 )
 
-target_precompile_headers(${PROJECT_NAME} PUBLIC ${PBNI_FRAMEWORK_HEADERS})
+target_include_directories(${PROJECT_NAME} PUBLIC ${PBNI_SDK_DIRECTORY}/include)
+target_precompile_headers(${PROJECT_NAME} PRIVATE "<PBNIFramework/pch.h>")
 
 if (NOT INSTALL_PATH STREQUAL "")
 	install(TARGETS ${PROJECT_NAME}

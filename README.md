@@ -6,33 +6,54 @@ Template for creating PBNI Extensions
 
 The project name is the package name according to the informaticon universal naming convention (e.g. lib.pbni.base.mail-client).
 
-- Replace every occurence of `°°°PACKAGE_NAME°°°` in `CMakeLists.txt` with the name of your project
-    - *If you want to use VSCode's CMake plugin, also replace the ones inside `CMakePresets.json`*
+- Replace the `°°°PACKAGE_NAME°°°` in `CMakeLists.txt` with the name of your project
 - Create your sourcefiles at `src/` and add them to `CMakeLists.txt` in the `add_library` function (replace `°°°SOURCE_FILES°°°` with them).
 
 ## Setting up an environment
 
-If this is your first time building a PBNI Extension, [install vcpkg](https://vcpkg.io/en/getting-started.html) to `C:\vcpkg`
-*If for some reason you cannot install vcpkg in `C:\vcpkg` you'll have to add `-DCMAKE_TOOLCHAIN_FILE="your_vcpkg_path/scripts/buildsystems/vcpkg.cmake"` to every cmake command that includes `--preset vcpkg[64]`*
+If this is your first time building a PBNI Extension, [install conan](https://docs.conan.io/2/installation.html) (version 2!).
 
-Then configure the project including installing the dependencies using one of:
-
+You then need to add our conan Repository to be able to install the PBNI Framework:
 ```ps1
-# For 32-bit builds
-cmake . -B build --preset vcpkg 
+conan remote add inf-conan https://artifactory.informaticon.com/artifactory/api/conan/conan
+```
 
-# For 64-bit builds
-cmake . -B build --preset vcpkg64
+We use this profile during development:
+```ini
+# ~/.conan2/profiles/pbni_x86_debug
+[settings]
+arch=x86 # change this to x86_64 for 64bit builds
+build_type=Debug # change this to MinSizeRel if you want to
+compiler=msvc
+compiler.cppstd=20
+compiler.runtime=static
+compiler.version=194
+os=Windows
+
+[options]
+*:pb_version=22.0 # Change this to 25.0 to use PowerBuilder 25
+```
+
+## Configuring
+
+Install the dependencies and configure the CMake project:
+```ps1
+conan install . -pr pbni_x86_debug -b missing
+cmake --preset conan-default
 ```
 
 Then you can open `build/${YOUR_PROJECT_NAME}.sln` using Visual Studio
 
 ## Building
 
-First setup the environment, then either open the Project in Visual Studio or run inside the root folder:
-
+Quickest way to build is this:
 ```ps1
-cmake --build build/ --config MinSizeRel
+conan build . -pr pbni_x86_debug -b missing
+```
+
+During development you should [configure](#configuring) and then you can build either using the GUI in Visual Studio or VS Code or with this command:
+```ps1
+cmake --build --preset conan-debug
 ```
 
 ## Example code
@@ -60,3 +81,5 @@ namespace Inf {
     }
 }
 ```
+
+More examples at [div.cpp.base.pbni-framework-usage-example](https://github.com/informaticon/div.cpp.base.pbni-framework-usage-example).

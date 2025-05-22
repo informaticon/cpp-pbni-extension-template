@@ -4,56 +4,12 @@
 # * builds the dll an uploads it to the gh release
 name: Autorelease (Build/Tag/Release)
 on:
-  push:
-    branches:
-      - main
-      - prerelease
+  - push
 jobs:
   build:
-    runs-on: [self-hosted, windows]
-    
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        submodules: recursive
-        token: ${{ secrets.GH_PRIVATE_READ_PAT }}
-
-    # goes through commits and increases major if a commit msg contains `BREAKING CHANGE:`,
-    # increases minor if `feat:` found or increases patch on `fix:`
-    # if none of them occur, the default can be set with default_bump (major, minor, patch, false)
-    # set manually a version with "custom_tag" (https://github.com/mathieudutour/github-tag-action)
-    - name: Increase version and push tag
-      id: tag_version
-      uses: mathieudutour/github-tag-action@v6.1
-      with:
-        github_token: ${{ github.token }} # need write permissions to tag repo
-        default_bump: false
-        default_prerelease_bump: prerelease
-        pre_release_branches: prerelease
-        # append_to_pre_release_tag: testrelease
-        # release_branches is default to main/master and will increase the patch number if nothing found in commit messages
-    
-
-    # Needed to give vcpkg access to the private repository
-    - name: Git Creds
-      run: git config --global url.https://`${{ secrets.GH_PRIVATE_READ_PAT }}@github.com/.insteadOf https://github.com/
-      # The backtick ensures, that the secret isn't written into the config file 
-      # instead, the token will be expanded when go wants to download a package
-
-    - name: Build
-      id: build
-      uses: informaticon/dev.github.base.pbni-build-action@v1
-      with:
-        version: "${{ steps.tag_version.outputs.new_version }}"
-
-    - name: Create release
-      if: ${{ steps.tag_version.outputs.release_type != '' }}
-      uses: softprops/action-gh-release@v1
-      id: create_release
-      with:
-        draft: false
-        prerelease: ${{ contains(fromJSON('["premajor", "preminor", "prepatch", "prerelease"]'), steps.tag_version.outputs.release_type) }}
-        tag_name: ${{ steps.tag_version.outputs.new_tag }}
-        generate_release_notes: true
-        files: ${{ steps.build.outputs.dll-file }}
+    uses: informaticon/dev.github.base.pbni-build-action/.github/workflows/pbni-build-action.yml@v2
+    with:
+      pb_version: "22.0"
+      do_release: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/prerelease' }}
+    secrets:
+      read_token: ${{ secrets.GH_PRIVATE_READ_PAT }}
