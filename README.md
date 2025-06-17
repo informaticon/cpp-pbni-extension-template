@@ -20,10 +20,14 @@ conan remote add inf-conan https://artifactory.informaticon.com/artifactory/api/
 
 We use this profile during development:
 ```ini
-# ~/.conan2/profiles/pbni_x86_debug
+# %userprofile/.conan2/profiles/pbni_x86_debug
 [settings]
-arch=x86 # change this to x86_64 for 64bit builds
-build_type=Debug # change this to MinSizeRel if you want to
+
+# change arch to x86_64 for 64bit builds
+arch=x86
+
+# change build_type to MinSizeRel if you want to
+build_type=Debug
 compiler=msvc
 compiler.cppstd=20
 compiler.runtime=static
@@ -31,7 +35,8 @@ compiler.version=194
 os=Windows
 
 [options]
-*:pb_version=22.0 # Change this to 25.0 to use PowerBuilder 25
+# change pb_version to 25.0 to use PowerBuilder 25
+*:pb_version=22.0
 ```
 
 ## Configuring
