@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake, cmake_layout
-
+import os
 
 class Recipe(ConanFile):
     requires = [
@@ -16,7 +16,11 @@ class Recipe(ConanFile):
         cmake_layout(self)
 
     def build(self):
-        vars = { "PBNI_SDK_DIRECTORY": f"C:/Program Files (x86)/Appeon/PowerBuilder {self.options.pb_version}/SDK/PBNI/" }
+        vars = {}
+        if "PB_DIRECTORY" in os.environ:
+            vars["PBNI_SDK_DIRECTORY"] = f"{os.environ["PB_DIRECTORY"]}/PowerBuilder {self.options.pb_version}/SDK/PBNI/"
+        else:
+            vars["PBNI_SDK_DIRECTORY"] = f"C:/Program Files (x86)/Appeon/PowerBuilder {self.options.pb_version}/SDK/PBNI/"
         if self.version:
             vars["VERSION_STR"] = self.version
 
