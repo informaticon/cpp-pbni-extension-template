@@ -5,7 +5,7 @@ Template for creating PBNI Extensions
 ## Prerequisites
 
 * Appeon PowerBuilder
-* Conann (version 2)
+* Conan (version 2)
 * CMake
 * Visual Studio (MSBuild)
 
@@ -15,6 +15,14 @@ The project name is the package name according to the informaticon universal nam
 
 - Replace the `°°°PACKAGE_NAME°°°` in `CMakeLists.txt` with the name of your project
 - Create your sourcefiles at `src/` and add them to `CMakeLists.txt` in the `add_library` function (replace `°°°SOURCE_FILES°°°` with them).
+
+Example:
+```CMake
+add_library(${PROJECT_NAME} SHARED
+	src/arithmetic.cpp
+	src/arithmetic.h
+)
+```
 
 ## Quick Start
 
