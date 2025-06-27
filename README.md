@@ -34,9 +34,12 @@ If you have GNU Make, you may just run `make build` after modifying CMakeLists.t
 
 If PowerBuilder is not installed in the default path (`C:/Program Files (x86)/Appeon`), you must set an environment variable `PB_DIRECTORY` that points to the corresponding directory.
 
-If this is your first time building a PBNI Extension, [install conan](https://docs.conan.io/2/installation.html) (version 2!) and add our conan repository to be able to install the PBNI Framework:
+If this is your first time building a PBNI Extension, [install conan](https://docs.conan.io/2/installation.html) (version 2!) and add our conan repository to be able to install the PBNI Framework. You must also detect the conan environment when it is freshly installed
+
 ```ps1
 conan remote add inf-conan https://artifactory.informaticon.com/artifactory/api/conan/conan
+
+conan profile detect
 ```
 
 We use this conan profile:
@@ -51,6 +54,7 @@ build_type=MinSizeRel
 compiler=msvc
 compiler.cppstd=20
 compiler.runtime=static
+# check %userprofile%/.conan2/profiles/default for the right compioler.version
 compiler.version=194
 os=Windows
 
