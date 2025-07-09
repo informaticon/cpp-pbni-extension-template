@@ -131,7 +131,7 @@ Add the Informaticon Exception Framework to you project:
 * Add exf1.pbl to your library list.
 * Integrate exception framework in the application object:
 
-```pb
+```powerbuilder
 // Global variables
 u_exf_error_manager gu_e
 
