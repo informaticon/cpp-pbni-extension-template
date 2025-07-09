@@ -4,7 +4,7 @@ import os
 
 class Recipe(ConanFile):
     requires = [
-        "lib.cpp.base.pbni-framework/0.1.0",
+        "lib.cpp.base.pbni-framework/0.1.2",
     ]
 
     settings = "os", "compiler", "build_type", "arch"

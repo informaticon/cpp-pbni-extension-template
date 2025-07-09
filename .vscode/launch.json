@@ -5,9 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(Windows) Attach",
+            "name": "Attach to PB220",
             "type": "cppvsdbg",
             "request": "attach",
+            "processId": "${input:GetPB220PID}"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "GetPB220PID",
+            "type": "command",
+            "command": "shellCommand.execute",
+            "args": {
+                "command": "powershell",
+                "commandArgs": [
+                    "-Command",
+                    "(Get-Process -Name pb220).ID"
+                ],
+                "useSingleResult": true
+            }
         }
     ]
 }
