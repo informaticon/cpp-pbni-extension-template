@@ -1,6 +1,8 @@
-# div.cpp.base.pbni-extension-template
+ div.cpp.base.pbni-extension-template
 
 Template for creating PowerBuilder Libraries that use the PowerBuilder Native Interface (in this case using the [Informaticon PBNI Framework](/informaticon/cpp-pbni-framework)).
+
+This library uses the name `pbni-extension-template` and abbreviation `tpl` in a few places (inside files as well as filenames), you should probably replace them with your library names.
 
 ## Prerequisites
 
@@ -9,9 +11,19 @@ Template for creating PowerBuilder Libraries that use the PowerBuilder Native In
 * CMake
 * Conan (version 2)
 
-## Project Structure
-ofcourse you can and should rename all `tpl` and `pbni-extension-template` with the name for your library
+## TLDR
+Develop in C++ in [pbni/src](pbni/src) then build the changes with.
+```ps1
+conan build pbni -pr pbni_x86
+```
 
+Then open the PowerBuilder project [tpb.pbsln](tpb.pbsln).
+If you added a class / method you need to reimport the dll into `tpl1.pbl` by right clicking, then `Import PB Extension...`.
+
+Code your PowerBuilder stuff and Run.
+
+
+## Project Structure
 ### tpl.pbl/
 This is where the PowerBuilder code for your library goes, any utility functions or wrappers will are put here.
 The pbni classes will also be put in here. This is the only folder that should be shipped in a release (plus the dll).
@@ -38,13 +50,13 @@ Get the Informaticon Exception Framework:
   ```pwsh
   axp fetch
   ```
-<details>
+</details>
 <details>
   <summary>For external project</summary>
 
   * Download the latest release from [Github](https://github.com/informaticon/pb-exception-framework/releases/) (e.g. lib.pb.base.exception-framework@1.2.3+pb22-x86-minsizerel.zip for PB2022R3).
   * Unzip exf1.dll and exf1.pbl into the `test/` folder.
-<details>
+</details>
 
 
 If you have not already, add our build cache to conan (to get faster builds and the PBNI Framework recipe).
@@ -204,7 +216,7 @@ PRIVATE
 ```
 
 ### Importing
-Open the Project in PowerBuilder and right click on `tpl.pbl`, choose `Import PB Extension` and select the dll (e.g. ./pbni-extension-template.dll).
+Open the Project in PowerBuilder and right click on `tpl.pbl`, choose `Import PB Extension...` and select the dll (e.g. ./pbni-extension-template.dll).
 This will create stub classes for all classes that you registered with `INF_REGISTER_CLASS`.
 
 ### Releasing
