@@ -1,4 +1,4 @@
- div.cpp.base.pbni-extension-template
+# cpp-pbni-extension-template
 
 Template for creating PowerBuilder Libraries that use the PowerBuilder Native Interface (in this case using the [Informaticon PBNI Framework](/informaticon/cpp-pbni-framework)).
 
@@ -14,30 +14,28 @@ This library uses the name `pbni-extension-template` and abbreviation `tpl` in a
 ## TLDR
 Develop in C++ in [pbni/src](pbni/src) then build the changes with.
 ```ps1
-conan build pbni -pr pbni_x86
+conan build pbni -pr pbni_x86_minsizerel -b missing
 ```
 
-Then open the PowerBuilder project [tpb.pbsln](tpb.pbsln).
+Then open the PowerBuilder project `tpl.pbsln`.
 If you added a class / method you need to reimport the dll into `tpl1.pbl` by right clicking, then `Import PB Extension...`.
 
 Code your PowerBuilder stuff and Run.
 
 
 ## Project Structure
-### tpl.pbl/
+- `tpl.pbl/`
 This is where the PowerBuilder code for your library goes, any utility functions or wrappers will are put here.
 The pbni classes will also be put in here. This is the only folder that should be shipped in a release (plus the dll).
 
-### pbni/
+- `pbni/`
 This folder contains the C++ project.
 
-### test/
+- `test/`
 Put any test code in here. You will also need to add the exception framework in here.
 
-### pbni-extension-template.dll
+- `pbni-extension-template.dll`
 The built DLL.
-
----
 
 ## PBNI Development
 
@@ -54,8 +52,8 @@ Get the Informaticon Exception Framework:
 <details>
   <summary>For external project</summary>
 
-  * Download the latest release from [Github](https://github.com/informaticon/pb-exception-framework/releases/) (e.g. lib.pb.base.exception-framework@1.2.3+pb22-x86-minsizerel.zip for PB2022R3).
-  * Unzip exf1.dll and exf1.pbl into the `test/` folder.
+  1. Download the latest release from [Github](https://github.com/informaticon/pb-exception-framework/releases/) (e.g. lib.pb.base.exception-framework@1.2.3+pb22-x86-minsizerel.zip for PB2022R3).
+  2. Unzip exf1.dll and exf1.pbl into the `test/` folder.
 </details>
 
 
@@ -116,8 +114,8 @@ cmake --preset conan-default
 ```
 
 After that, you can open the PBNI extension project in Visual Studio (`pbni/build/${YOUR_PROJECT_NAME}.sln`).
-In Visual Studio make sure to build the Install target
 
+To run incremental builds, you can build the Install target in Visual Studio or in the terminal (in `pbni/`):
 ```ps1
 cmake --build --preset conan-debug -t install
 ```
@@ -131,9 +129,6 @@ Once you've created the Source File, you need to update the CMake project, to do
 - In Terminal: `cmake pbni --preset conan-default`
 - In Visual Studio: build `ZERO_CHECK`
 - In VSCode: `CMake: Configure`
-
-#### Docs
-You can find the PBNI Framework docs [here](https://github.com/informaticon/cpp-pbni-framework)
 
 #### Debugging
 To attach to PowerBuilder, open the PowerBuidler IDE and then inside Visual Studio go to `Debug > Attach to Process... (Ctrl+Alt+P)` and choose the PBXXX.exe process you want (XXX being the PowerBuilder version).
@@ -214,6 +209,9 @@ PRIVATE
     libYours
 )
 ```
+
+#### Docs
+You can find the PBNI Framework docs [here](https://github.com/informaticon/cpp-pbni-framework)
 
 ### Importing
 Open the Project in PowerBuilder and right click on `tpl.pbl`, choose `Import PB Extension...` and select the dll (e.g. ./pbni-extension-template.dll).
