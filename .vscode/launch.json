@@ -1,26 +1,24 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to PB220",
+            "name": "(Windows) Attach",
             "type": "cppvsdbg",
             "request": "attach",
-            "processId": "${input:GetPB220PID}"
+            "processId": "${input:GetPowerBuilderPID}"
         }
     ],
     "inputs": [
         {
-            "id": "GetPB220PID",
+            // this needs the "augustocdias.tasks-shell-input" vscode extension
+            "id": "GetPowerBuilderPID",
             "type": "command",
             "command": "shellCommand.execute",
             "args": {
                 "command": "powershell",
                 "commandArgs": [
                     "-Command",
-                    "(Get-Process -Name pb220).ID"
+                    "(Get-Process -Name pb2*0).ID"
                 ],
                 "useSingleResult": true
             }

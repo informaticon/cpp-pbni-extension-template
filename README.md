@@ -1,6 +1,6 @@
 # div.cpp.base.pbni-extension-template
 
-Template for creating PBNI Extensions
+Template for creating PowerBuilder Libraries that use the PowerBuilder Native Interface (in this case using the [Informaticon PBNI Framework](/informaticon/cpp-pbni-framework)).
 
 ## Prerequisites
 
@@ -9,147 +9,229 @@ Template for creating PBNI Extensions
 * CMake
 * Conan (version 2)
 
-## Quick Start
+## Project Structure
+ofcourse you can and should rename all `tpl` and `pbni-extension-template` with the name for your library
 
-### Setup Conan
+### tpl.pbl/
+This is where the PowerBuilder code for your library goes, any utility functions or wrappers will are put here.
+The pbni classes will also be put in here. This is the only folder that should be shipped in a release (plus the dll).
 
-If PowerBuilder is not installed in the default path (`C:/Program Files (x86)/Appeon`), you must set an environment variable `PB_DIRECTORY` that points to the corresponding directory.
+### pbni/
+This folder contains the C++ project.
 
-[Install conan](https://docs.conan.io/2/installation.html) (version 2!) and add our conan repository to be able to install the PBNI Framework.
-You must also detect the conan environment after it is freshly installed.
+### test/
+Put any test code in here. You will also need to add the exception framework in here.
 
+### pbni-extension-template.dll
+The built DLL.
+
+---
+
+## PBNI Development
+
+### Setup
+
+Get the Informaticon Exception Framework:
+<details open>
+  <summary>For Informaticon projects</summary>
+
+  ```pwsh
+  axp fetch
+  ```
+<details>
+<details>
+  <summary>For external project</summary>
+
+  * Download the latest release from [Github](https://github.com/informaticon/pb-exception-framework/releases/) (e.g. lib.pb.base.exception-framework@1.2.3+pb22-x86-minsizerel.zip for PB2022R3).
+  * Unzip exf1.dll and exf1.pbl into the `test/` folder.
+<details>
+
+
+If you have not already, add our build cache to conan (to get faster builds and the PBNI Framework recipe).
 ```ps1
 conan remote add inf-conan https://artifactory.informaticon.com/artifactory/api/conan/conan
-
-conan profile detect
 ```
 
-Change the default Conan profile (usually found at `%userprofile%/.conan2/profiles/default`).
-This profile tells Conan to build for a 32-bit architecture and specifies compiler settings.
+If you want to use the cached files you need to use these conan profiles:
+
+For development:
 ```ini
-# %userprofile%/.conan2/profiles/default
+# ~/.conan2/profiles/pbni_x86
 [settings]
-# Do not change these values, they werde detrmined by conan profile detect and are probably correct
+arch=x86
+build_type=Debug
 compiler=msvc
+compiler.cppstd=20
+compiler.runtime=static
 compiler.version=194
 os=Windows
 
-# Change arch to x86.
-# If you need a 64bit build, you can set it to x86_64.
-arch=x86
-
-# Change build_type to MinSizeRel (produces smaller DLL files than Release).
-# If you want to debug you C++ code when it is called from a PB app, change it to Debug.
-build_type=MinSizeRel
-
-# Change compiler.runtime to static linking.
-compiler.runtime=static
-
-# PBNI Framework needs compiler.cppstd 20.
-compiler.cppstd=20
-
-# This option has to be set for PBNI Framework.
 [options]
-# Set *:pb_version to 22.0 for PowerBuilder 2022
-# or 25.0 for PowerBuilder 2025
 *:pb_version=22.0
 ```
 
-### Code the extension
+For Releases:
+```ini
+# ~/.conan2/profiles/pbni_x86_minsizerel
+[settings]
+arch=x86
+build_type=MinsizeRel
+compiler=msvc
+compiler.cppstd=20
+compiler.runtime=static
+compiler.version=194
+os=Windows
 
-With your environment configured, you can now build the extension.
-For Informaticon projects, the project name is the package name according to the informaticon universal naming convention (e.g. lib.pbni.base.mail-client).
-Otherwise you are free to choose any project name.
-
-Modify the project for your needs / program your library:
-
-* Replace `°°°PACKAGE_NAME°°°` in `CMakeLists.txt` with the name of your project.
-* Create your sourcefiles at `src/` and add them to `CMakeLists.txt` in the `add_library` function (replace `°°°SOURCE_FILES°°°` with them).
-
-Example:
-
-* CMakeLists.txt
-```CMake
-add_library(${PROJECT_NAME} SHARED
-	src/arithmetic.cpp
-	src/arithmetic.h
-)
+[options]
+*:pb_version=25.0
 ```
 
-* arithmetic.h
-```cpp
-namespace Inf {
-    class arithmetic : public PBNI_Class {
-    public:
-        PBInt f_add(PBInt, PBInt);
-    };
-}
-```
+If you only use Conan for PBNI development, you can copy / symlink the pbni_x86 config to `~/.conan2/profiles/default`, then you don't need to pass the profile to each conan command.
 
-* arithmetic.cpp
-```cpp
-#include "arithmetic.h"
+If PowerBuilder is not installed in the default path (`C:/Program Files (x86)/Appeon`), you must set an environment variable `PB_DIRECTORY` that points to the corresponding directory.
 
-namespace Inf {
-    INF_REGISTER_CLASS(arithmetic, L"u_pbni_arithmetic");
 
-    INF_REGISTER_FUNC(f_add, L"of_add", L"ai_left", L"ai_right");
-    PBInt arithmetic::f_add(PBInt arg0, PBInt arg1) {
-        return arg0 + arg1;
-    }
-}
-```
-
-### Build the extension
-
-With your environment configured, you can now build the extension.
-
-Install the required dependencies using Conan. This may take some time on the first run as it downloads and builds the necessary libraries.
-
+### Building
 ```ps1
-conan install . --build=missing
+conan build pbni -pr pbni_x86_minsizerel -b missing
 ```
 
-Generate the Visual Studio project files using CMake.
-After that step, you can open the PBNI extension project in Visual Studio (`build/${YOUR_PROJECT_NAME}.sln`).
-
+### Developing
 ```ps1
+cd pbni
+conan install -pr pbni_x86 -b missing
 cmake --preset conan-default
 ```
 
-Build the PBNI extension.
+After that, you can open the PBNI extension project in Visual Studio (`pbni/build/${YOUR_PROJECT_NAME}.sln`).
+In Visual Studio make sure to build the Install target
 
 ```ps1
-conan build . --build=missing
+cmake --build --preset conan-debug -t install
+```
+The `-t install` argument will make cmake install the dll in the root of this project (next to this Readme).
+
+You shouldn't run the Install target while the PowerBuilder Application is currently running, Since you will get weird Errors telling you that you don't have Permissions to overwrite the DLL.
+
+#### Creating new Source Files
+When creating new files, they have to be created in the `src/` directory, this means that you shouldn't create new Files in Visual Studio, since those would be created inside the build directory.
+Once you've created the Source File, you need to update the CMake project, to do that you have to do one of:
+- In Terminal: `cmake pbni --preset conan-default`
+- In Visual Studio: build `ZERO_CHECK`
+- In VSCode: `CMake: Configure`
+
+#### Docs
+You can find the PBNI Framework docs [here](https://github.com/informaticon/cpp-pbni-framework)
+
+#### Debugging
+To attach to PowerBuilder, open the PowerBuidler IDE and then inside Visual Studio go to `Debug > Attach to Process... (Ctrl+Alt+P)` and choose the PBXXX.exe process you want (XXX being the PowerBuilder version).
+
+#### External Libraries
+You can just add the dependency in `conanfile.py`:
+```py
+class Recipe(ConanFile):
+    requires = [
+        "lib.cpp.base.pbni-framework/0.1.2",
+        "poco/1.13.3",
+    ]
+```
+then run this inside the pbni dir to update the lockfile:
+```ps1
+conan lock create . -pr pbni_x86 -b missing
 ```
 
-### Use the extension in PowerBuilder
+After installing the package, you need to add it to the [CMakeLists.txt](pbni/CMakeLists.txt) file. To do this, go to the very bottom of the file, where you should see a `target_link_libraries` option. Before that line, import the package using `find_package`, and then add the packages name to the `target_link_library` option. Heres an example of how to add Pocos JSON Parser. 
+```cmake
+find_package(lib.cpp.base.pbni-framework REQUIRED)
+find_package(Poco REQUIRED JSON)
 
-Add the Informaticon Exception Framework to you project:
-* Download the latest release from [Github](https://github.com/informaticon/pb-exception-framework/releases/) (e.g. lib.pb.base.exception-framework@1.2.3+pb22-x86-minsizerel.zip for PB2022R3).
-* Unzip exf1.dll and exf1.pbl into you PowerBuilder project folder.
-* Add exf1.pbl to your library list.
-* Integrate exception framework in the application object:
-
-```powerbuilder
-// Global variables
-u_exf_error_manager gu_e
-
-// open() event
-gu_e = create u_exf_error_manager
-
-// systemerror() event
-gu_e.of_display(gu_e.of_new_error() &
-	.of_set_nested_error(gu_e.of_get_last_error()) &
-	.of_push(1 /*populateerror()-Return*/) &
-	.of_set_message('systemerror occured') &cc
-	.of_push('Notice', 'Nested error may be unrelated to this system error.') &
-	.of_set_type('u_exf_re_systemerror'))
-halt
+target_link_libraries(libMailClient
+PRIVATE
+	lib.cpp.base.pbni-framework::lib.cpp.base.pbni-framework
+	Poco::JSON
+)
 ```
 
-Finally, import the resulting DLL file into PowerBuilder.
-You can find it in the build directory, for example: `./build/Debug/div.cpp.base.pbni-framework-usage-example.dll`.
+#### Local Libraries
+If you want to add a local library, you need 2 things, a static `.lib` file. and an `include/` folder. If you are not sure which ones you need, ask Simon Jutzi or Micha Wehrli.
+
+Once you've gathered your required files. Create a Subfolder in the `pbni/extern/` folder and setup your folders like so:
+```
+pbni/
+├── extern/
+│   └── your.library.name/
+│       ├── lib/
+│       │   └── your-library.lib
+│       ├── include/
+│       │   ├──  some_header.h
+│       │   └──  another_header.h
+│       └── CMakeLists.txt
+├── ...
+└── CMakeLists.txt
+```
+
+Put your `.lib` file into the lib/ subfolder and the contents of your `include/` folder into the `include/` subfolder. Then Create the `CMakeLists.txt` file on the same level as the `lib/` and `include/` folders. Inside it add:
+```cmake
+# extern/your.library.name/CMakeLists.txt
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+
+add_library(libYours STATIC IMPORTED GLOBAL)
+
+set_target_properties(libYours
+PROPERTIES
+	IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/lib/your-library.lib
+)
+
+target_include_directories(libYours
+INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+```
+You should replace the `libYours` with a suitable name and put the correct `.lib` file name.
+
+And finally in the topmost [CMakeLists.txt](pbni/CMakeLists.txt), add the `add_subdirectory` and your library to the  `target_link_libraries` option:
+```cmake
+...
+
+add_subdirectory(extern/your.library.name)
+find_package(lib.cpp.base.pbni-framework REQUIRED)
+
+target_link_libraries(${PROJECT_NAME}
+PRIVATE
+	lib.cpp.base.pbni-framework::lib.cpp.base.pbni-framework
+    libYours
+)
+```
+
+### Importing
+Open the Project in PowerBuilder and right click on `tpl.pbl`, choose `Import PB Extension` and select the dll (e.g. ./pbni-extension-template.dll).
+This will create stub classes for all classes that you registered with `INF_REGISTER_CLASS`.
+
+### Releasing
+Informaticon Projects can just create and push a tag on the commit that they want to create a Release on. (Make sure the commit has a good commit message, because that message will be used as the releases description). A Github Workflow will rebuild the PBNI project with `build_type=MinSizeRel` for both PowerBuilder 22 and 25, then it will create a release to the package service.
+
+### VSCode
+While it is recommended to use Visual Studio and PowerBuilder as development IDEs, VSCode is also supported.
+To make it work nicely with AutoCompletion and building you need these extensions:
+ - [C/C++ Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack)
+ - [Tasks Shell Input](https://marketplace.visualstudio.com/items?itemName=augustocdias.tasks-shell-input)
+
+Even when using VSCode you still need to install Visual Studio to get the build tools.
+
+#### Developing
+You do not need to run the cmake commands, just open the directory containing this Readme in VSCode and install dependencies:
+```ps1
+conan install -pr pbni_x86 -b missing
+```
+After that open Command Pallete (Ctrl+Shift+P) and run `CMake: Configure`, if it asks choose the `conan-default` preset.
+
+#### Building
+Then you can also build with `CMake: Build` or `CMake: Install`.
+
+#### Debugging
+There is a [launch.json](.vscode/launch.json) setup to attach to PowerBuilder. So hitting `<F5>` should be enough.
+You will need to stop the Debugging Session when rebuilding the DLL.
+
 
 ## Further reading
 

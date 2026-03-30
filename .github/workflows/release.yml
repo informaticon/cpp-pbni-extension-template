@@ -1,0 +1,15 @@
+name: Create AXP Release
+on:
+  push:
+    branches:
+      - main
+      - devel
+    tags:
+      - "v*.*.*"
+jobs:
+  create-release:
+    uses: informaticon/dev.github.base.bsw-dev-actions/.github/workflows/pb-release.yml@v1
+    with:
+      version: ${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-trunk' }}
+      pbni_name: "lib.pbni.base.os-utils"
+    secrets: inherit

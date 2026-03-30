@@ -17,13 +17,13 @@ class Recipe(ConanFile):
 
     def build(self):
         vars = {}
-        if "PB_DIRECTORY" in os.environ:
-            vars["PBNI_SDK_DIRECTORY"] = f"{os.environ['PB_DIRECTORY']}/PowerBuilder {self.options.pb_version}/SDK/PBNI/"
-        else:
-            vars["PBNI_SDK_DIRECTORY"] = f"C:/Program Files (x86)/Appeon/PowerBuilder {self.options.pb_version}/SDK/PBNI/"
+
         if self.version:
             vars["VERSION_STR"] = self.version
 
+        pbdir = os.environ.get("PB_DIRECTORY", f"C:/Program Files (x86)/Appeon")
+        vars["PBNI_SDK_DIRECTORY"] = f"{pbdir}/PowerBuilder {self.options.pb_version}/SDK/PBNI/"
+
         cmake = CMake(self)
         cmake.configure(vars)
-        cmake.build()
+        cmake.build(target="install")

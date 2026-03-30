@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project>
+  <Type Name="pb" />
+  <Application Name="tst_tpl" />
+  <DeployConfigurations OutputDirectory="" />
+  <Libraries AppEntry="test\tst_tpl.pbl">
+    <Library Path="tpl1.pbl" />
+    <Library Path="test\tst_tpl.pbl" />
+    <Library Path="test\tst_tpl.pbl\exf1.pbl" />
+  </Libraries>
+</Project>

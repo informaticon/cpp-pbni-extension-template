@@ -1,0 +1,24 @@
+{
+	"json_format_version" : "3.0.0",
+	"package_name" : "pbni-extension-template",
+	"package_version" : null,
+	"created_at" : null,
+	"created_by" : null,
+	"version_locks" : {
+		"lib.pb.base.exception-framework": {
+			"version": "1.2.0"
+		}
+	},
+	"requirements" : {
+		"lib.pb.base.exception-framework" : {
+			"constraint" : ">=1.1.0"
+		}
+	},
+	"additional_info": {
+		"powerbuilder_version": "2025R1"
+	},
+	"files" : [
+		"tpl.pbl",
+		"pbni-extension-template.dll"
+	]
+}
