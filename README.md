@@ -85,7 +85,7 @@ For Releases:
 # ~/.conan2/profiles/pbni_x86_minsizerel
 [settings]
 arch=x86
-build_type=MinsizeRel
+build_type=MinSizeRel
 compiler=msvc
 compiler.cppstd=20
 compiler.runtime=static
